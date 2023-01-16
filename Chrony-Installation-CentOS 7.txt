@@ -1,0 +1,97 @@
+==============================================================================
+  Configure Chrony for Linux Instances (CentOS 7)
+==============================================================================
+
+=================================
+ On Master Machine 
+=================================
+
+[root@master ~]# yum -y install chrony
+[root@master ~]# vi /etc/chrony.conf
+---------------------------------------------------------------------------
+# Use public servers from the pool.ntp.org project.
+# Please consider joining the pool (http://www.pool.ntp.org/join.html).
+server 1.centos.pool.ntp.org iburst
+server 2.centos.pool.ntp.org iburst
+server 3.centos.pool.ntp.org iburst
+
+# Record the rate at which the system clock gains/losses time.
+driftfile /var/lib/chrony/drift
+
+# Allow the system clock to be stepped in the first three updates
+# if its offset is larger than 1 second.
+makestep 1.0 3
+
+# Enable kernel synchronization of the real-time clock (RTC).
+rtcsync
+
+
+# Increase the minimum number of selectable sources required to adjust
+# the system clock.
+minsources 2
+
+# Allow NTP client access from local network.
+
+allow 192.168.235.0/24
+
+# Serve time even if not synchronized to a time source.
+local stratum 10
+
+# Specify directory for log files.
+logdir /var/log/chrony
+------------------------------------------------------------------------------
+ Remove all line & paste this lines and save file
+-------------------------------------------------------------------------------
+[root@master ~]# systemctl start chronyd
+[root@master ~]# systemctl enable chronyd
+[root@master ~]# systemctl status chronyd
+[root@master ~]# chronyc sources
+
+-------------------------------------------------------------------------------
+
+=================================
+ On Client Machine 
+=================================
+
+[root@master ~]# yum -y install chrony
+[root@master ~]# vi /etc/chrony.conf
+---------------------------------------------------------------------------------
+# Use public servers from the pool.ntp.org project.
+# Please consider joining the pool (http://www.pool.ntp.org/join.html).
+server 192.168.235.161 iburst
+#server 0.centos.pool.ntp.org iburst
+#server 1.centos.pool.ntp.org iburst
+#server 2.centos.pool.ntp.org iburst
+#server 3.centos.pool.ntp.org iburst
+
+# Record the rate at which the system clock gains/losses time.
+driftfile /var/lib/chrony/drift
+
+# Allow the system clock to be stepped in the first three updates
+# if its offset is larger than 1 second.
+makestep 1.0 3
+
+# Enable kernel synchronization of the real-time clock (RTC).
+rtcsync
+
+
+# Allow NTP client access from local network.
+#allow 192.168.0.0/16
+
+# Serve time even if not synchronized to a time source.
+local stratum 10
+
+
+# Specify directory for log files.
+logdir /var/log/chrony
+---------------------------------------------------------------------------------
+Remove all line & paste this lines and save file
+---------------------------------------------------------------------------------
+
+[root@master ~]# systemctl start chronyd
+[root@master ~]# systemctl enable chronyd
+[root@master ~]# systemctl status chronyd
+[root@master ~]# systemctl restart chronyd
+[root@master ~]# ntpdate -q 192.168.235.161
+[root@master ~]# ntpdate -u 192.168.235.161
+
